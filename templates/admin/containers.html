@@ -6,10 +6,10 @@
         <h2><i class="fas fa-boxes"></i> Manage Containers</h2>
         <div class="header-stats">
             <span class="stat-item">
-                <i class="fas fa-ship"></i> At Port: {{ containers|selectattr('status', 'equalto', 'At Port')|list|length }}
+                <i class="fas fa-ship"></i> At Port: {{ containers|selectattr('status', 'equalto', 'Arrived')|list|length }}
             </span>
             <span class="stat-item">
-                <i class="fas fa-route"></i> In Transit: {{ containers|selectattr('status', 'equalto', 'In Transit')|list|length }}
+                <i class="fas fa-route"></i> In Transit: {{ containers|rejectattr('status', 'equalto', 'Not Assigned')|rejectattr('status', 'equalto', 'Arrived')|rejectattr('status', 'equalto', 'En Route')|list|length }}
             </span>
         </div>
     </div>
