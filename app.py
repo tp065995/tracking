@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from models import db, Container, Announcement, Arrival, Admin
 from datetime import datetime, timedelta
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -432,6 +433,72 @@ def manage_arrival(id):
         db.session.delete(arrival)
         db.session.commit()
         return jsonify({'success': True})
+
+@app.route('/admin/containers/upload', methods=['POST'])
+@login_required
+def upload_containers():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file uploaded'}), 400
+    
+    file = request.files['file']
+    if not file.filename.endswith(('.xlsx', '.xls')):
+        return jsonify({'success': False, 'message': 'Invalid file format'}), 400
+
+    try:
+        # Read Excel file
+        df = pd.read_excel(file)
+        required_columns = ['Container Number', 'Assign to Vessel', 'Final Destination']
+        
+        # Verify required columns
+        if not all(col in df.columns for col in required_columns):
+            return jsonify({
+                'success': False,
+                'message': f'Missing required columns. Required: {", ".join(required_columns)}'
+            }), 400
+
+        containers_added = 0
+        errors = []
+
+        # Process each row
+        for _, row in df.iterrows():
+            try:
+                # Look up vessel by name/voyage number
+                vessel_info = row['Assign to Vessel'].split(' (')
+                vessel_name = vessel_info[0]
+                voyage_number = vessel_info[1].split(')')[0] if len(vessel_info) > 1 else None
+                
+                vessel = Arrival.query.filter_by(
+                    vessel_name=vessel_name,
+                    voyage_number=voyage_number
+                ).first() if voyage_number else None
+
+                # Create new container
+                new_container = Container(
+                    container_number=row['Container Number'],
+                    final_destination=row['Final Destination'],
+                    vessel_id=vessel.id if vessel else None
+                )
+                db.session.add(new_container)
+                containers_added += 1
+                
+            except Exception as e:
+                errors.append(f"Error in row {containers_added + 1}: {str(e)}")
+                continue
+
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'added': containers_added,
+            'errors': errors
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'Error processing file: {str(e)}'
+        }), 500
 
 @app.before_request
 def before_request():

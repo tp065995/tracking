@@ -13,9 +13,14 @@
             </span>
         </div>
     </div>
-    <button class="btn btn-primary" onclick="showAddContainerModal()">
-        <i class="fas fa-plus"></i> Add Container
-    </button>
+    <div class="action-buttons">
+        <button class="btn btn-primary" onclick="showAddContainerModal()">
+            <i class="fas fa-plus"></i> Add Container
+        </button>
+        <button class="btn btn-secondary" onclick="showUploadModal()">
+            <i class="fas fa-file-excel"></i> Upload Excel
+        </button>
+    </div>
 </div>
 
 <div class="search-filters">
@@ -115,6 +120,39 @@
                 </button>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Save Container
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Excel Upload Modal -->
+<div id="uploadModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-file-excel"></i> Upload Containers</h3>
+            <button type="button" class="modal-close" onclick="closeUploadModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Select Excel File</label>
+                <input type="file" id="excelFile" accept=".xlsx,.xls" required>
+                <small class="form-text">
+                    File must contain columns: Container Number, Assign to Vessel, Final Destination
+                </small>
+            </div>
+            <div id="uploadProgress" style="display: none;">
+                <div class="progress-bar"></div>
+                <p class="progress-text">Processing...</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeUploadModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload"></i> Upload
                 </button>
             </div>
         </form>
@@ -230,5 +268,87 @@ function filterContainers() {
         row.style.display = matchesSearch && matchesStatus ? '' : 'none';
     });
 }
+
+// Add these new functions to your existing script
+function showUploadModal() {
+    document.getElementById('uploadModal').style.display = 'block';
+}
+
+function closeUploadModal() {
+    document.getElementById('uploadModal').style.display = 'none';
+    document.getElementById('uploadProgress').style.display = 'none';
+    document.getElementById('uploadForm').reset();
+}
+
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('excelFile');
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const progressBar = document.querySelector('.progress-bar');
+    const progressText = document.querySelector('.progress-text');
+    document.getElementById('uploadProgress').style.display = 'block';
+
+    try {
+        const response = await fetch('/admin/containers/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(`Successfully added ${result.added} containers`);
+            window.location.reload();
+        } else {
+            alert(result.message || 'Error uploading file');
+        }
+    } catch (error) {
+        alert('Error uploading file');
+        console.error('Error:', error);
+    } finally {
+        document.getElementById('uploadProgress').style.display = 'none';
+    }
+});
 </script>
+
+<style>
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #eee;
+    border-radius: 2px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: var(--accent-color);
+    animation: progress 1s infinite linear;
+    border-radius: 2px;
+}
+
+@keyframes progress {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
+
+.progress-text {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+</style>
 {% endblock %}
