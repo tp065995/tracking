@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-overlay">
+        <h1>À Propos de Comoros ShipTrack</h1>
+        <p>Solutions Logistiques Maritimes Leaders aux Comores</p>
+    </div>
+</div>
+
+<div class="container">
+    <section class="about-section">
+        <div class="about-content">
+            <div class="about-grid">
+                <div class="about-text">
+                    <h2>Votre Partenaire de Confiance</h2>
+                    <p class="lead-text">Depuis 2010, nous révolutionnons le suivi des conteneurs aux Comores, apportant transparence et efficacité à la logistique maritime.</p>
+                    <div class="mission-values">
+                        <div class="mission-card">
+                            <i class="fas fa-bullseye"></i>
+                            <h3>Notre Mission</h3>
+                            <p>Fournir des solutions de suivi en temps réel et précises qui permettent aux entreprises et aux particuliers des Comores.</p>
+                        </div>
+                        <div class="mission-card">
+                            <i class="fas fa-star"></i>
+                            <h3>Notre Vision</h3>
+                            <p>Être la principale plateforme logistique maritime dans la région de l'océan Indien, reconnue pour son excellence et son innovation.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="{{ url_for('static', filename='images/about/port-aerial.jpg') }}" alt="Comoros Port Aerial View">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="achievements-section">
+        <h2>Notre Impact en Chiffres</h2>
+        <div class="stats-grid">
+            <div class="stat-card" data-count="15000">
+                <i class="fas fa-ship"></i>
+                <h3><span class="counter">15,000</span>+</h3>
+                <p>Conteneurs Suivis</p>
+            </div>
+            <div class="stat-card" data-count="5000">
+                <i class="fas fa-users"></i>
+                <h3><span class="counter">5,000</span>+</h3>
+                <p>Clients Satisfaits</p>
+            </div>
+            <div class="stat-card" data-count="13">
+                <i class="fas fa-clock"></i>
+                <h3><span class="counter">13</span></h3>
+                <p>Années d'Expérience</p>
+            </div>
+            <div class="stat-card" data-count="2">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3><span class="counter">2</span></h3>
+                <p>Ports Principaux</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="team-section">
+        <h2>Notre Équipe de Direction</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="{{ url_for('static', filename='images/team/ceo.jpg') }}" alt="PDG">
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="member-info">
+                    <h3>Ahmed Hassan</h3>
+                    <p class="position">Président Directeur Général</p>
+                    <p class="bio">Plus de 20 ans d'expérience en logistique maritime et opérations portuaires.</p>
+                </div>
+            </div>
+            <!-- Add more team members similarly -->
+        </div>
+    </section>
+
+    <section class="partners-section">
+        <h2>Nos Partenaires</h2>
+        <div class="partners-grid">
+            <div class="partner-logo">
+                <img src="{{ url_for('static', filename='images/partners/maersk.png') }}" alt="Maersk">
+            </div>
+            <div class="partner-logo">
+                <img src="{{ url_for('static', filename='images/partners/msc.png') }}" alt="MSC">
+            </div>
+            <!-- Add more partner logos -->
+        </div>
+    </section>
+</div>
+
+<script>
+    // Add animation for statistics
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    counters.forEach(counter => {
+        const updateCount = () => {
+            const target = +counter.getAttribute('data-count');
+            const count = +counter.innerText;
+            const inc = target / speed;
+
+            if (count < target) {
+                counter.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 1);
+            } else {
+                counter.innerText = target;
+            }
+        };
+        updateCount();
+    });
+</script>
+{% endblock %}

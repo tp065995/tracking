@@ -1,0 +1,238 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-header">
+    <div class="header-content">
+        <h2><i class="fas fa-bullhorn"></i> Manage Announcements</h2>
+        <div class="header-stats">
+            <span class="stat-item">
+                <i class="fas fa-check-circle"></i> Active: {{ announcements|selectattr('is_active', 'true')|list|length }}
+            </span>
+            <span class="stat-item">
+                <i class="fas fa-exclamation-triangle"></i> Priority: {{ announcements|selectattr('category', 'equalto', 'priority')|list|length }}
+            </span>
+        </div>
+    </div>
+    <button class="btn btn-primary" onclick="showAddAnnouncementModal()">
+        <i class="fas fa-plus"></i> Add Announcement
+    </button>
+</div>
+
+<div class="category-tabs">
+    <button class="tab active" data-category="all">All</button>
+    <button class="tab" data-category="priority">Priority</button>
+    <button class="tab" data-category="maintenance">Maintenance</button>
+    <button class="tab" data-category="notice">Notice</button>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Content</th>
+                <th>Created At</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for announcement in announcements %}
+            <tr>
+                <td>{{ announcement.title }}</td>
+                <td>
+                    <span class="badge badge-{{ announcement.category }}">
+                        {{ announcement.category }}
+                    </span>
+                </td>
+                <td>{{ announcement.content[:100] }}...</td>
+                <td>{{ announcement.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <span class="status-badge {{ 'active' if announcement.is_active else 'inactive' }}">
+                        {{ 'Active' if announcement.is_active else 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-small btn-primary" onclick="editAnnouncement('{{ announcement.id }}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-small btn-danger" onclick="deleteAnnouncement('{{ announcement.id }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Announcement Modal -->
+<div id="announcementModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-bullhorn"></i> Add New Announcement</h3>
+            <button type="button" class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="announcementForm" onsubmit="handleSubmit(event)">
+            <div class="form-scroll-container">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="title">Title <span class="required">*</span></label>
+                        <input type="text" id="title" class="form-control" required 
+                               placeholder="Enter announcement title">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select id="category" class="form-control" required>
+                                <option value="">Select category</option>
+                                <option value="priority">Priority Alert</option>
+                                <option value="maintenance">Maintenance Notice</option>
+                                <option value="notice">General Notice</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="content">Content <span class="required">*</span></label>
+                    <textarea id="content" class="form-control" rows="6" required
+                              placeholder="Enter announcement content"></textarea>
+                    <span class="helper-text">Provide clear and concise information</span>
+                </div>
+                <div class="form-group switch-group">
+                    <label class="switch-label">
+                        Active Status
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="is_active" checked>
+                            <span class="switch-slider"></span>
+                        </div>
+                    </label>
+                    <span class="helper-text">Toggle to set announcement visibility</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Announcement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAddAnnouncementModal() {
+    document.getElementById('announcementModal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('announcementModal').style.display = 'none';
+}
+
+async function editAnnouncement(id) {
+    try {
+        const response = await fetch(`/admin/announcements/${id}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Populate modal fields
+            document.getElementById('title').value = data.title;
+            document.getElementById('category').value = data.category;
+            document.getElementById('content').value = data.content;
+            document.getElementById('is_active').checked = data.is_active;
+            
+            // Update form attributes for edit mode
+            const form = document.getElementById('announcementForm');
+            form.dataset.mode = 'edit';
+            form.dataset.id = id;
+            
+            // Update modal title and button text
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Edit Announcement';
+            document.querySelector('.modal-actions .btn-primary').innerHTML = '<i class="fas fa-save"></i> Update Announcement';
+            
+            // Show modal
+            showAddAnnouncementModal();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading announcement data');
+    }
+}
+
+function deleteAnnouncement(id) {
+    if (confirm('Are you sure you want to delete this announcement?')) {
+        fetch(`/admin/announcements/${id}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target == document.getElementById('announcementModal')) {
+        closeModal();
+    }
+}
+
+async function handleSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const isEdit = form.dataset.mode === 'edit';
+    const id = form.dataset.id;
+    
+    const data = {
+        title: document.getElementById('title').value,
+        category: document.getElementById('category').value,
+        content: document.getElementById('content').value,
+        is_active: document.getElementById('is_active').checked
+    };
+
+    try {
+        const response = await fetch(isEdit ? `/admin/announcements/${id}` : '/admin/announcements/add', {
+            method: isEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            closeModal();
+            window.location.reload();
+        } else {
+            alert(`Error ${isEdit ? 'updating' : 'adding'} announcement`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error ${isEdit ? 'updating' : 'adding'} announcement`);
+    }
+}
+
+// Add category filtering
+document.querySelectorAll('.category-tabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        const category = tab.dataset.category;
+        const rows = document.querySelectorAll('.admin-table tbody tr');
+        
+        rows.forEach(row => {
+            const rowCategory = row.querySelector('.badge').classList[1].replace('badge-', '');
+            row.style.display = (category === 'all' || category === rowCategory) ? '' : 'none';
+        });
+    });
+});
+</script>
+{% endblock %}

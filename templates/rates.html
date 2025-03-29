@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-overlay">
+        <h1>Tarifs d'Expédition</h1>
+        <p>Tarification transparente et compétitive pour tous vos besoins d'expédition</p>
+    </div>
+</div>
+
+<div class="container">
+    <section class="rates-intro">
+        <h2>Notre Structure Tarifaire</h2>
+        <p class="lead-text">Choisissez la solution d'expédition qui correspond le mieux à vos besoins. Tous les tarifs incluent la manutention portuaire standard et la documentation.</p>
+        
+        <div class="rates-calculator">
+            <h3><i class="fas fa-calculator"></i> Calculateur de Tarif Rapide</h3>
+            <div class="calculator-form">
+                <div class="form-group">
+                    <label>Port de Destination</label>
+                    <select id="portSelect">
+                        <option value="mutsamudu">Mutsamudu Port</option>
+                        <option value="moroni">Moroni Port</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Container Type</label>
+                    <select id="containerType">
+                        <option value="20ft">20ft Standard</option>
+                        <option value="40ft">40ft Standard</option>
+                        <option value="40hc">40ft High Cube</option>
+                        <option value="reefer">Reefer Container</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Service Type</label>
+                    <select id="serviceType">
+                        <option value="standard">Standard Service</option>
+                        <option value="express">Express Service</option>
+                        <option value="premium">Premium Service</option>
+                    </select>
+                </div>
+                <button class="calculate-btn">Calculate Rate</button>
+            </div>
+            <div id="calculatedRate" class="rate-result"></div>
+        </div>
+    </section>
+
+    <section class="rates-tables">
+        <div class="rates-tabs">
+            <button class="tab active" data-port="mutsamudu">
+                <i class="fas fa-ship"></i> Tarifs Mutsamudu
+            </button>
+            <button class="tab" data-port="moroni">
+                <i class="fas fa-ship"></i> Tarifs Moroni
+            </button>
+        </div>
+
+        <div class="rates-content">
+            <div class="rate-table active" id="mutsamudu-rates">
+                <div class="rate-card">
+                    <div class="rate-header">
+                        <h3>Standard Containers</h3>
+                        <p>From major Asian and African ports</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>Standard Service</th>
+                                <th>Express Service</th>
+                                <th>Premium Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>20ft Standard</td>
+                                <td>750,000 KMF <span class="duration">15-20 days</span></td>
+                                <td>1,000,000 KMF <span class="duration">10-12 days</span></td>
+                                <td>1,250,000 KMF <span class="duration">7-9 days</span></td>
+                            </tr>
+                            <tr>
+                                <td>40ft Standard</td>
+                                <td>1,400,000 KMF <span class="duration">15-20 days</span></td>
+                                <td>1,750,000 KMF <span class="duration">10-12 days</span></td>
+                                <td>2,100,000 KMF <span class="duration">7-9 days</span></td>
+                            </tr>
+                            <tr>
+                                <td>40ft High Cube</td>
+                                <td>1,500,000 KMF <span class="duration">15-20 days</span></td>
+                                <td>1,900,000 KMF <span class="duration">10-12 days</span></td>
+                                <td>2,250,000 KMF <span class="duration">7-9 days</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rate-card">
+                    <div class="rate-header">
+                        <h3>Special Containers</h3>
+                        <p>Temperature controlled and special handling</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>Standard Service</th>
+                                <th>Express Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>20ft Reefer</td>
+                                <td>1,400,000 KMF <span class="duration">15-18 days</span></td>
+                                <td>1,750,000 KMF <span class="duration">10-12 days</span></td>
+                            </tr>
+                            <tr>
+                                <td>40ft Reefer</td>
+                                <td>2,100,000 KMF <span class="duration">15-18 days</span></td>
+                                <td>2,500,000 KMF <span class="duration">10-12 days</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="rate-table" id="moroni-rates">
+                <div class="rate-card">
+                    <div class="rate-header">
+                        <h3>Standard Containers</h3>
+                        <p>From major Asian and African ports</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>Standard Service</th>
+                                <th>Express Service</th>
+                                <th>Premium Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>20ft Standard</td>
+                                <td>800,000 KMF <span class="duration">15-20 days</span></td>
+                                <td>1,050,000 KMF <span class="duration">10-12 days</span></td>
+                                <td>1,300,000 KMF <span class="duration">7-9 days</span></td>
+                            </tr>
+                            <tr>
+                                <td>40ft Standard</td>
+                                <td>1,450,000 KMF <span class="duration">15-20 days</span></td>
+                                <td>1,800,000 KMF <span class="duration">10-12 days</span></td>
+                                <td>2,150,000 KMF <span class="duration">7-9 days</span></td>
+                            </tr>
+                            <tr>
+                                <td>40ft High Cube</td>
+                                <td>1,550,000 KMF <span class="duration">15-20 days</span></td>
+                                <td>1,950,000 KMF <span class="duration">10-12 days</span></td>
+                                <td>2,300,000 KMF <span class="duration">7-9 days</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rate-card">
+                    <div class="rate-header">
+                        <h3>Special Containers</h3>
+                        <p>Temperature controlled and special handling</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Container Type</th>
+                                <th>Standard Service</th>
+                                <th>Express Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>20ft Reefer</td>
+                                <td>1,450,000 KMF <span class="duration">15-18 days</span></td>
+                                <td>1,800,000 KMF <span class="duration">10-12 days</span></td>
+                            </tr>
+                            <tr>
+                                <td>40ft Reefer</td>
+                                <td>2,150,000 KMF <span class="duration">15-18 days</span></td>
+                                <td>2,550,000 KMF <span class="duration">10-12 days</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="additional-services">
+        <h2>Services Additionnels</h2>
+        <div class="services-grid">
+            <div class="service-item">
+                <i class="fas fa-file-alt"></i>
+                <h4>Documentation</h4>
+                <p>25,000 KMF par ensemble</p>
+            </div>
+            <div class="service-item">
+                <i class="fas fa-clipboard-check"></i>
+                <h4>Dédouanement</h4>
+                <p>75,000 KMF</p>
+            </div>
+            <div class="service-item">
+                <i class="fas fa-truck"></i>
+                <h4>Livraison Terrestre</h4>
+                <p>Sur Devis</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Add tab switching functionality
+    document.querySelectorAll('.rates-tabs .tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs
+            document.querySelectorAll('.rates-tabs .tab').forEach(t => t.classList.remove('active'));
+            // Add active class to clicked tab
+            tab.classList.add('active');
+            
+            // Hide all rate tables with fade effect
+            document.querySelectorAll('.rate-table').forEach(table => {
+                table.style.opacity = '0';
+                setTimeout(() => {
+                    table.style.display = 'none';
+                    table.classList.remove('active');
+                }, 300);
+            });
+            
+            // Show selected rate table with fade effect
+            const portId = tab.getAttribute('data-port');
+            const selectedTable = document.getElementById(`${portId}-rates`);
+            if (selectedTable) {
+                setTimeout(() => {
+                    selectedTable.style.display = 'block';
+                    selectedTable.classList.add('active');
+                    setTimeout(() => {
+                        selectedTable.style.opacity = '1';
+                    }, 50);
+                }, 300);
+            }
+        });
+    });
+
+    // Add calculator functionality
+    document.querySelector('.calculate-btn').addEventListener('click', () => {
+        const port = document.getElementById('portSelect').value;
+        const containerType = document.getElementById('containerType').value;
+        const serviceType = document.getElementById('serviceType').value;
+        
+        // Rate mapping object (in KMF)
+        const rates = {
+            mutsamudu: {
+                '20ft': {
+                    standard: 750000,
+                    express: 1000000,
+                    premium: 1250000
+                },
+                '40ft': {
+                    standard: 1400000,
+                    express: 1750000,
+                    premium: 2100000
+                },
+                '40hc': {
+                    standard: 1500000,
+                    express: 1900000,
+                    premium: 2250000
+                },
+                'reefer': {
+                    standard: 1400000,
+                    express: 1750000
+                }
+            },
+            moroni: {
+                '20ft': {
+                    standard: 800000,
+                    express: 1050000,
+                    premium: 1300000
+                },
+                '40ft': {
+                    standard: 1450000,
+                    express: 1800000,
+                    premium: 2150000
+                },
+                '40hc': {
+                    standard: 1550000,
+                    express: 1950000,
+                    premium: 2300000
+                },
+                'reefer': {
+                    standard: 1450000,
+                    express: 1800000
+                }
+            }
+        };
+
+        // Calculate rate
+        const rate = rates[port][containerType][serviceType];
+        
+        // Format number with commas
+        const formattedRate = rate.toLocaleString('en-US');
+        
+        const resultDiv = document.getElementById('calculatedRate');
+        resultDiv.innerHTML = `
+            <div class="calculated-rate">
+                <h4>Estimated Rate:</h4>
+                <div class="rate-amount">${formattedRate} KMF</div>
+                <p>This is an estimate. Contact us for a detailed quote.</p>
+            </div>
+        `;
+    });
+</script>
+{% endblock %}

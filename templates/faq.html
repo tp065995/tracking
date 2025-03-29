@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div class="header-overlay">
+        <h1>Questions Fréquentes</h1>
+        <p>Trouvez des réponses à vos questions sur nos services d'expédition et de suivi</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="faq-filters">
+        <button class="filter-btn active" data-category="all">Toutes les Questions</button>
+        <button class="filter-btn" data-category="tracking">Suivi</button>
+        <button class="filter-btn" data-category="shipping">Expédition</button>
+        <button class="filter-btn" data-category="customs">Douanes</button>
+    </div>
+
+    <div class="faq-section">
+        <div class="faq-group">
+            <h2><i class="fas fa-search"></i> Tracking Questions</h2>
+            <div class="faq-item" data-category="tracking">
+                <div class="faq-question">
+                    <h3>Comment puis-je suivre mon conteneur ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Vous pouvez suivre votre conteneur de trois façons simples :</p>
+                    <ul>
+                        <li>Entrez votre numéro de conteneur sur notre outil de suivi en page d'accueil</li>
+                        <li>Utilisez notre application mobile</li>
+                        <li>Contactez notre service client 24/7</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="tracking">
+                <div class="faq-question">
+                    <h3>À quelle fréquence les informations de suivi sont-elles mises à jour ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Les informations de suivi sont mises à jour en temps réel, avec des changements de statut reflétés dans les 30 minutes.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-group">
+            <h2><i class="fas fa-ship"></i> Shipping Questions</h2>
+            <div class="faq-item" data-category="shipping">
+                <div class="faq-question">
+                    <h3>Quels sont les délais d'expédition vers les Comores ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Les délais d'expédition varient selon le niveau de service :</p>
+                    <ul>
+                        <li>Service Standard : 15-20 jours</li>
+                        <li>Service Express : 10-12 jours</li>
+                        <li>Service Premium : 7-9 jours</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="shipping">
+                <div class="faq-question">
+                    <h3>Quels ports desservez-vous aux Comores ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Nous opérons dans les deux principaux ports des Comores :</p>
+                    <ul>
+                        <li>Port de Mutsamudu (Anjouan)</li>
+                        <li>Port de Moroni (Grande Comore)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="shipping">
+                <div class="faq-question">
+                    <h3>Quels types de conteneurs gérez-vous ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Nous gérons tous les types de conteneurs standard, notamment :</p>
+                    <ul>
+                        <li>Conteneurs Standard 20 pieds</li>
+                        <li>Conteneurs Standard 40 pieds</li>
+                        <li>Conteneurs High Cube 40 pieds</li>
+                        <li>Conteneurs Réfrigérés (température contrôlée)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="faq-group">
+            <h2><i class="fas fa-clipboard-check"></i> Customs & Documentation</h2>
+            <div class="faq-item" data-category="customs">
+                <div class="faq-question">
+                    <h3>Quels documents sont requis pour le dédouanement ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Les documents requis comprennent :</p>
+                    <ul>
+                        <li>Connaissement</li>
+                        <li>Facture commerciale</li>
+                        <li>Liste de colisage</li>
+                        <li>Certificat d'origine</li>
+                        <li>Licence d'importation (si applicable)</li>
+                        <li>Déclaration en douane</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="customs">
+                <div class="faq-question">
+                    <h3>Combien de temps prend le dédouanement ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Délais habituels de dédouanement :</p>
+                    <ul>
+                        <li>Dédouanement standard : 2-3 jours ouvrables</li>
+                        <li>Dédouanement express : 1-2 jours ouvrables</li>
+                        <li>*Les délais peuvent varier selon le type de marchandise et la complétude des documents</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="customs">
+                <div class="faq-question">
+                    <h3>Proposez-vous des services de courtage en douane ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Oui, nous proposons des services complets de courtage en douane, incluant :</p>
+                    <ul>
+                        <li>Préparation et vérification des documents</li>
+                        <li>Calcul des droits de douane</li>
+                        <li>Classification des marchandises</li>
+                        <li>Liaison avec les autorités douanières</li>
+                        <li>Résolution des questions douanières</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item" data-category="customs">
+                <div class="faq-question">
+                    <h3>Quels sont les articles soumis à restrictions à l'importation ?</h3>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Les articles suivants sont soumis à des restrictions spéciales :</p>
+                    <ul>
+                        <li>Marchandises dangereuses et matières dangereuses</li>
+                        <li>Produits pharmaceutiques et équipements médicaux</li>
+                        <li>Produits alimentaires et périssables</li>
+                        <li>Produits agricoles</li>
+                        <li>Équipements électroniques et de communication</li>
+                    </ul>
+                    <p>Veuillez nous contacter pour des informations détaillées sur des articles spécifiques.</p>
+                </div>
+            </div>
+        </div>
+    </div>  <!-- Closing faq-section -->
+
+    <div class="faq-contact">
+        <h3>Vous n'avez pas trouvé ce que vous cherchez ?</h3>
+        <p>Notre équipe de service client est là pour vous aider 24/7</p>
+        <div class="contact-buttons">
+            <a href="#" onclick="event.preventDefault(); document.getElementById('contact').scrollIntoView({behavior: 'smooth'});" class="contact-btn primary">
+                <i class="fas fa-envelope"></i> Nous Contacter
+            </a>
+            <a href="tel:+2697710123" class="contact-btn secondary">
+                <i class="fas fa-phone"></i> Appeler le Support
+            </a>
+        </div>
+    </div>
+
+</div>  <!-- Closing container -->
+
+<script>
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        const item = question.parentElement;
+        const isOpen = item.classList.contains('active');
+        
+        // Close all items
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.classList.remove('active');
+            const answer = item.querySelector('.faq-answer');
+            answer.style.maxHeight = null;
+        });
+        
+        // Open clicked item if it wasn't open
+        if (!isOpen) {
+            item.classList.add('active');
+            const answer = item.querySelector('.faq-answer');
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+        }
+    });
+});
+
+document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        const category = button.dataset.category;
+        
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // Filter FAQ items
+        document.querySelectorAll('.faq-item').forEach(item => {
+            if (category === 'all' || item.dataset.category === category) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

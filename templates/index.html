@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comoros Container Tracking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-ship"></i>
+                <span>Comoros ShipTrack</span>
+            </div>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <a href="#tracking"><i class="fas fa-search"></i> Track</a>
+                <a href="{{ url_for('about') }}"><i class="fas fa-info-circle"></i> À Propos</a>
+                <a href="{{ url_for('services') }}"><i class="fas fa-cogs"></i> Services</a>
+                <a href="{{ url_for('rates') }}"><i class="fas fa-dollar-sign"></i> Tarifs</a>
+                <a href="{{ url_for('faq') }}"><i class="fas fa-question-circle"></i> FAQ</a>
+                <a href="{{ url_for('admin_login') }}"><i class="fas fa-user-shield"></i> Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Suivez Votre Conteneur aux Comores</h1>
+                <p class="hero-subtitle">Suivi en temps réel pour les expéditions vers les ports de Mutsamudu et Moroni</p>
+            </div>
+            <div class="search-container">
+                <form id="searchForm" class="search-box">
+                    <div class="search-flex">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input 
+                                type="text" 
+                                id="container_number" 
+                                placeholder="Entrez le numéro de conteneur..." 
+                                required
+                                pattern="[A-Za-z]{4}[0-9]{7}"
+                                title="Please enter a valid container number (e.g., MSCU1234567)"
+                            >
+                        </div>
+                        <button type="submit" class="track-button">
+                            <i class="fas fa-search"></i>
+                            Suivre
+                        </button>
+                    </div>
+                    <div class="search-helper">
+                        <p>Exemple: MSCU1234567 ou CMAU7654321</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="result" class="result-box"></div>
+
+        <section id="announcements" class="section announcements-section">
+            <h2><i class="fas fa-bullhorn"></i> Annonces Importantes</h2>
+            <div class="announcements-grid">
+                {% for announcement in announcements %}
+                <div class="announcement-card {{ announcement.category }}">
+                    <div class="announcement-icon">
+                        <i class="fas fa-{{ announcement.icon }}"></i>
+                    </div>
+                    <div class="announcement-content">
+                        <span class="announcement-badge">
+                            {% if announcement.category == 'priority' %}
+                                Prioritaire
+                            {% elif announcement.category == 'maintenance' %}
+                                Maintenance
+                            {% else %}
+                                Notification
+                            {% endif %}
+                        </span>
+                        <h3>{{ announcement.title }}</h3>
+                        <p>{{ announcement.content }}</p>
+                        <span class="announcement-date">{{ announcement.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="schedule" class="section">
+            <h2><i class="fas fa-calendar"></i> Arrivées Prochaines</h2>
+            <div class="schedule-tabs">
+                <button class="port-tab active" data-port="mutsamudu">
+                    <i class="fas fa-ship"></i>
+                    Port de Mutsamudu
+                    <span class="arrival-count">{{ mutsamudu_arrivals|length }}</span>
+                </button>
+                <button class="port-tab" data-port="moroni">
+                    <i class="fas fa-ship"></i>
+                    Port de Moroni
+                    <span class="arrival-count">{{ moroni_arrivals|length }}</span>
+                </button>
+            </div>
+            <div class="schedule-content">
+                <div class="schedule-table active" id="mutsamudu-schedule">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Navire</th>
+                                <th>Origine</th>
+                                <th>ETA</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for arrival in mutsamudu_arrivals %}
+                            <tr>
+                                <td>
+                                    <div class="vessel-info">
+                                        <i class="fas fa-ship"></i>
+                                        <div>
+                                            {{ arrival.vessel_name }}
+                                            <span class="voyage">Vol. {{ arrival.voyage_number }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ arrival.origin_port }}</td>
+                                <td>
+                                    <div class="time">
+                                        <span>{{ arrival.eta.strftime('%d/%m/%Y') }}</span>
+                                        <span>{{ arrival.eta.strftime('%H:%M') }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status {{ arrival.status|lower }}">
+                                        {% if arrival.status == 'On Time' %}
+                                            À l'heure
+                                        {% elif arrival.status == 'Delayed' %}
+                                            Retardé
+                                        {% elif arrival.status == 'Arrived' %}
+                                            Arrivé
+                                        {% else %}
+                                            {{ arrival.status }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="moroni-schedule" class="schedule-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vessel Name</th>
+                                <th>Origin</th>
+                                <th>ETA</th>
+                                <th>Berth</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for arrival in moroni_arrivals %}
+                            <tr>
+                                <td>
+                                    <div class="vessel-info">
+                                        <i class="fas fa-ship"></i>
+                                        <div>
+                                            <span>{{ arrival.vessel_name }}</span>
+                                            <span class="voyage">VOY: {{ arrival.voyage_number }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ arrival.origin_port }}</td>
+                                <td>
+                                    <div class="arrival-time">
+                                        <span class="date">{{ arrival.eta.strftime('%b %d, %Y') }}</span>
+                                        <span class="time">{{ arrival.eta.strftime('%H:%M') }} local time</span>
+                                    </div>
+                                </td>
+                                <td>{{ arrival.berth }}</td>
+                                <td><span class="status {{ arrival.status.lower() }}">{{ arrival.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="destinations" class="section">
+            <h2><i class="fas fa-map-marker-alt"></i> Nos Destinations</h2>
+            <div class="destinations-grid">
+                <div class="destination-card">
+                    <img src="{{ url_for('static', filename='images/mutsamudu-port.jpg') }}" alt="Mutsamudu Port">
+                    <div class="destination-info">
+                        <h3>Port de Mutsamudu</h3>
+                        <p>Principal port de commerce d'Anjouan</p>
+                        <ul>
+                            <li><i class="fas fa-clock"></i> Délai de traitement : 2-3 jours</li>
+                            <li><i class="fas fa-ship"></i> Arrivées hebdomadaires</li>
+                            <li><i class="fas fa-phone"></i> Contact portuaire: +269 771 0123</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <img src="{{ url_for('static', filename='images/moroni-port.jpg') }}" alt="Moroni Port">
+                    <div class="destination-info">
+                        <h3>Port de Moroni</h3>
+                        <p>Port principal de la Grande Comore</p>
+                        <ul>
+                            <li><i class="fas fa-clock"></i> Délai de traitement : 2 à 4 jours</li>
+                            <li><i class="fas fa-ship"></i> Arrivées bimensuelles</li>
+                            <li><i class="fas fa-phone"></i> Contact portuaire: +269 763 4567</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tracking-info" class="section">
+            <h2><i class="fas fa-info-circle"></i> Information de Suivi</h2>
+            <div class="tracking-steps">
+                <div class="step">
+                    <i class="fas fa-box"></i>
+                    <h3>Conteneur chargé</h3>
+                    <p>Votre conteneur est chargé au port d'origine</p>
+                </div>
+                <div class="step">
+                    <i class="fas fa-ship"></i>
+                    <h3>En transit</h3>
+                    <p>Le conteneur est en route vers les Comores</p>
+                </div>
+                <div class="step">
+                    <i class="fas fa-anchor"></i>
+                    <h3>Arrivée au port</h3>
+                    <p>Arrivée au port de Mutsamudu/Moroni</p>
+                </div>
+                <div class="step">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Prêt pour la collecte</h3>
+                    <p>Conteneur déchargé et prêt</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section contact-section">
+            <h2><i class="fas fa-envelope"></i> Contactez-nous</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Appelez-nous</h3>
+                            <p>Assistance clientèle (24h/24 et 7j/7)</p>
+                            <a href="tel:+2697710123" class="contact-link">+269 771 0123</a>
+                            <a href="tel:+2697634567" class="contact-link">+269 763 4567</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Envoyez-nous un courriel</h3>
+                            <p>Nous vous répondrons dans les 24 heures</p>
+                            <a href="mailto:support@comorostrack.com" class="contact-link">support@comorostrack.com</a>
+                            <a href="mailto:info@comorostrack.com" class="contact-link">info@comorostrack.com</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h3>Visitez-nous</h3>
+                            <p>Siège social - Moroni</p>
+                            <p>Port de Moroni, Route de la Corniche</p>
+                            <p>Grande Comore, Comores</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-container">
+                    <form class="contact-form">
+                        <h3>Envoyez-nous un message</h3>
+                        <div class="form-group">
+                            <input type="text" placeholder="Votre Nom" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Votre Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" placeholder="Sujet" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Votre Message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-button">
+                            <i class="fas fa-paper-plane"></i> Envoyer le message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Liens Rapides</h3>
+                    <a href="#tracking">Suivre un Conteneur</a>
+                    <a href="{{ url_for('services') }}">Nos Services</a>
+                    <a href="{{ url_for('rates') }}">Tarifs d'Expédition</a>
+                    <a href="{{ url_for('about') }}">À Propos de Nous</a>
+                    <a href="{{ url_for('faq') }}">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <p><i class="fas fa-phone"></i> +269 771 0123</p>
+                    <p><i class="fas fa-phone"></i> +269 763 4567</p>
+                    <p><i class="fas fa-envelope"></i> support@comorostrack.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Port de Moroni, Comores</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Heures d'Ouverture</h3>
+                    <p><i class="fas fa-clock"></i> Lun - Ven: 8:00 - 18:00</p>
+                    <p><i class="fas fa-clock"></i> Sam: 9:00 - 14:00</p>
+                    <p><i class="fas fa-exclamation-circle"></i> Support 24/7 en cas d'urgence</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Comoros ShipTrack. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const containerNumber = document.getElementById('container_number').value;
+            try {
+                const response = await fetch(`/container/${containerNumber}`);
+                const data = await response.json();
+                const resultDiv = document.getElementById('result');
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="result-content">
+                            <h2>Container Details</h2>
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <span class="label">Container Number:</span>
+                                    <span class="value">${data.container_number}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Current Location:</span>
+                                    <span class="value">${data.current_location}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Final Destination:</span>
+                                    <span class="value">${data.final_destination}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Status:</span>
+                                    <span class="value status-badge ${data.status.toLowerCase().replace(' ', '-')}">${data.status}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Vessel:</span>
+                                    <span class="value">${data.vessel_name}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Last Updated:</span>
+                                    <span class="value">${new Date(data.last_updated).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                    // Add smooth scroll to result section
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    resultDiv.innerHTML = `<p class="error">${data.message}</p>`;
+                    resultDiv.style.display = 'block';
+                    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Update schedule tabs functionality
+        document.querySelectorAll('.port-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and tables
+                document.querySelectorAll('.port-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.schedule-table').forEach(table => table.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding table
+                tab.classList.add('active');
+                const port = tab.dataset.port;
+                document.getElementById(`${port}-schedule`).classList.add('active');
+            });
+        });
+
+        // Add mobile menu functionality
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const nav = document.querySelector('nav');
+        const body = document.body;
+
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = nav.classList.contains('active');
+            nav.classList.toggle('active');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-bars');
+            mobileMenuBtn.querySelector('i').classList.toggle('fa-times');
+            body.classList.toggle('menu-open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!nav.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                nav.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                body.classList.remove('menu-open');
+            }
+        });
+
+        // Close menu when clicking a nav link
+        nav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                nav.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                body.classList.remove('menu-open');
+            });
+        });
+
+        // ...existing tracking form script...
+    </script>
+
+    <style>
+        .result-content {
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .value {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .status-badge.arrived {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .status-badge.in-transit {
+            background: #3498db;
+            color: white;
+        }
+
+        .status-badge.en-route {
+            background: #f1c40f;
+            color: #333;
+        }
+
+        .status-badge.not-assigned {
+            background: #95a5a6;
+            color: white;
+        }
+
+        /* Add smooth scroll behavior to html */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Add some padding to prevent header overlap */
+        #result {
+            scroll-margin-top: 100px;
+        }
+    </style>
+</body>
+</html>

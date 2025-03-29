@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Comoros ShipTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+                <a href="{{ url_for('home') }}" class="nav-item visit-site">
+                    <i class="fas fa-external-link-alt"></i> Visit Site
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('admin_containers') }}" class="nav-item">
+                    <i class="fas fa-box"></i> Containers
+                </a>
+                <a href="{{ url_for('admin_announcements') }}" class="nav-item">
+                    <i class="fas fa-bullhorn"></i> Announcements
+                </a>
+                <a href="{{ url_for('admin_schedule') }}" class="nav-item">
+                    <i class="fas fa-calendar"></i> Schedule
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="nav-item logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

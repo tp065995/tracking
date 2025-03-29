@@ -1,0 +1,324 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-header">
+    <div class="header-content">
+        <h2><i class="fas fa-calendar-alt"></i> Vessel Schedule</h2>
+        <div class="header-stats">
+            <span class="stat-item">
+                <i class="fas fa-clock"></i> Expected Today: {{ arrivals|selectattr('eta', 'day_is', today)|list|length }}
+            </span>
+            <span class="stat-item">
+                <i class="fas fa-anchor"></i> In Port: {{ arrivals|selectattr('status', 'equalto', 'Arrived')|list|length }}
+            </span>
+        </div>
+    </div>
+    <button class="btn btn-primary" onclick="showAddArrivalModal()">
+        <i class="fas fa-plus"></i> Add Arrival
+    </button>
+</div>
+
+<div class="port-tabs">
+    <button class="port-tab active" data-port="all">All Ports</button>
+    <button class="port-tab" data-port="Mutsamudu">Mutsamudu</button>
+    <button class="port-tab" data-port="Moroni">Moroni</button>
+</div>
+
+<div class="date-filter">
+    <div class="date-range">
+        <input type="date" id="startDate" class="form-control">
+        <span>to</span>
+        <input type="date" id="endDate" class="form-control">
+    </div>
+    <button class="btn btn-secondary" onclick="applyDateFilter()">
+        <i class="fas fa-filter"></i> Apply Filter
+    </button>
+</div>
+
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Vessel Name</th>
+                <th>Voyage Number</th>
+                <th>Origin Port</th>
+                <th>Current Port</th>  <!-- Added column -->
+                <th>Destination Port</th>
+                <th>ETA</th>
+                <th>Status</th>
+                <th>Berth</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for arrival in arrivals %}
+            <tr>
+                <td>{{ arrival.vessel_name }}</td>
+                <td>{{ arrival.voyage_number }}</td>
+                <td>{{ arrival.origin_port }}</td>
+                <td>{{ arrival.current_port or 'En Route' }}</td>  <!-- Added cell -->
+                <td>{{ arrival.destination_port }}</td>
+                <td>{{ arrival.eta.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <span class="status-badge {{ arrival.status.lower() }}">
+                        {{ arrival.status }}
+                    </span>
+                </td>
+                <td>{{ arrival.berth }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-small btn-primary" onclick="editArrival('{{ arrival.id }}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-small btn-danger" onclick="deleteArrival('{{ arrival.id }}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Arrival Modal -->
+<div id="arrivalModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-ship"></i> Add New Vessel Arrival</h3>
+            <button type="button" class="modal-close" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="arrivalForm" onsubmit="handleSubmit(event)">
+            <div class="form-scroll-container">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="vessel_name">Vessel Name <span class="required">*</span></label>
+                        <input type="text" id="vessel_name" class="form-control" 
+                               required placeholder="Enter vessel name">
+                    </div>
+                    <div class="form-group">
+                        <label for="voyage_number">Voyage Number <span class="required">*</span></label>
+                        <input type="text" id="voyage_number" class="form-control" 
+                               required placeholder="e.g., VOY123">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="origin_port">Origin Port <span class="required">*</span></label>
+                        <input type="text" id="origin_port" class="form-control" 
+                               required placeholder="Enter origin port">
+                    </div>
+                    <div class="form-group">
+                        <label for="destination_port">Destination Port <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select id="destination_port" class="form-control" required>
+                                <option value="">Select destination port</option>
+                                <option value="Mutsamudu">Mutsamudu</option>
+                                <option value="Moroni">Moroni</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="eta">ETA <span class="required">*</span></label>
+                        <input type="datetime-local" id="eta" class="form-control" required>
+                        <span class="helper-text">Local port time</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select id="status" class="form-control" required>
+                                <option value="">Select status</option>
+                                <option value="Scheduled">Scheduled</option>
+                                <option value="En Route">En Route</option>
+                                <option value="Arrived">Arrived</option>
+                                <option value="Delayed">Delayed</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="current_port">Current Port</label>
+                        <div class="select-wrapper">
+                            <select id="current_port" class="form-control">
+                                <option value="">En Route</option>
+                                <option value="Mutsamudu">Mutsamudu</option>
+                                <option value="Moroni">Moroni</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <span class="helper-text">Leave empty if vessel is en route</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="berth">Berth Assignment <span class="required">*</span></label>
+                        <input type="text" id="berth" class="form-control" 
+                               required placeholder="Enter berth number">
+                        <span class="helper-text">Specify the assigned berth location</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Arrival
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showAddArrivalModal() {
+    document.getElementById('arrivalModal').style.display = 'block';
+    if (!document.getElementById('arrivalForm').dataset.mode) {
+        document.getElementById('arrivalForm').reset();
+        document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-ship"></i> Add New Vessel Arrival';
+        document.querySelector('.modal-actions .btn-primary').innerHTML = '<i class="fas fa-save"></i> Save Arrival';
+    }
+}
+
+function closeModal() {
+    document.getElementById('arrivalModal').style.display = 'none';
+}
+
+async function editArrival(id) {
+    try {
+        const response = await fetch(`/admin/schedule/${id}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Populate modal fields
+            document.getElementById('vessel_name').value = data.vessel_name;
+            document.getElementById('voyage_number').value = data.voyage_number;
+            document.getElementById('origin_port').value = data.origin_port;
+            document.getElementById('destination_port').value = data.destination_port;
+            document.getElementById('current_port').value = data.current_port || '';
+            document.getElementById('eta').value = data.eta.slice(0, 16); // Format datetime-local
+            document.getElementById('status').value = data.status;
+            document.getElementById('berth').value = data.berth;
+            
+            // Update form attributes for edit mode
+            const form = document.getElementById('arrivalForm');
+            form.dataset.mode = 'edit';
+            form.dataset.id = id;
+            
+            // Update modal title and button text
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Edit Vessel Arrival';
+            document.querySelector('.modal-actions .btn-primary').innerHTML = '<i class="fas fa-save"></i> Update Arrival';
+            
+            // Show modal
+            showAddArrivalModal();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading arrival data');
+    }
+}
+
+async function deleteArrival(id) {
+    if (confirm('Are you sure you want to delete this vessel?')) {
+        fetch(`/admin/schedule/${id}`, { 
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting vessel');
+        });
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target == document.getElementById('arrivalModal')) {
+        closeModal();
+    }
+}
+
+// Add port filtering
+document.querySelectorAll('.port-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.port-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        const port = tab.dataset.port;
+        const rows = document.querySelectorAll('.admin-table tbody tr');
+        
+        rows.forEach(row => {
+            const destinationPort = row.cells[3].textContent;
+            row.style.display = (port === 'all' || port === destinationPort) ? '' : 'none';
+        });
+    });
+});
+
+// Add date filtering
+function applyDateFilter() {
+    const startDate = new Date(document.getElementById('startDate').value);
+    const endDate = new Date(document.getElementById('endDate').value);
+    
+    const rows = document.querySelectorAll('.admin-table tbody tr');
+    rows.forEach(row => {
+        const etaDate = new Date(row.cells[4].textContent);
+        row.style.display = (etaDate >= startDate && etaDate <= endDate) ? '' : 'none';
+    });
+}
+
+async function handleSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const isEdit = form.dataset.mode === 'edit';
+    const id = form.dataset.id;
+    
+    const data = {
+        vessel_name: document.getElementById('vessel_name').value,
+        voyage_number: document.getElementById('voyage_number').value,
+        origin_port: document.getElementById('origin_port').value,
+        destination_port: document.getElementById('destination_port').value,
+        current_port: document.getElementById('current_port').value,
+        eta: document.getElementById('eta').value,
+        status: document.getElementById('status').value,
+        berth: document.getElementById('berth').value
+    };
+
+    try {
+        const response = await fetch(isEdit ? `/admin/schedule/${id}` : '/admin/schedule/add', {
+            method: isEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            closeModal();
+            window.location.reload();
+        } else {
+            alert(`Error ${isEdit ? 'updating' : 'adding'} arrival`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error ${isEdit ? 'updating' : 'adding'} arrival`);
+    }
+}
+</script>
+{% endblock %}

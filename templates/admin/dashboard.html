@@ -1,0 +1,106 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="welcome-section">
+        <h1>Welcome, Admin</h1>
+        <p>{{ current_date.strftime('%A, %B %d, %Y') }}</p>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-icon bg-primary">
+            <i class="fas fa-box"></i>
+        </div>
+        <div class="card-stats">
+            <h3>Containers</h3>
+            <span class="stat-number">{{ containers_count }}</span>
+            <span class="stat-label">Total Containers</span>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>12% from last month</span>
+            </div>
+        </div>
+        <a href="{{ url_for('admin_containers') }}" class="card-action">Manage Containers</a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-icon bg-warning">
+            <i class="fas fa-bullhorn"></i>
+        </div>
+        <div class="card-stats">
+            <h3>Announcements</h3>
+            <span class="stat-number">{{ announcements_count }}</span>
+            <span class="stat-label">Active Announcements</span>
+            <div class="stat-change">
+                <i class="fas fa-circle"></i>
+                <span>{{ active_announcements }} active now</span>
+            </div>
+        </div>
+        <a href="{{ url_for('admin_announcements') }}" class="card-action">Manage Announcements</a>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-icon bg-success">
+            <i class="fas fa-ship"></i>
+        </div>
+        <div class="card-stats">
+            <h3>Arrivals</h3>
+            <span class="stat-number">{{ arrivals_count }}</span>
+            <span class="stat-label">Expected Arrivals</span>
+            <div class="stat-change">
+                <i class="fas fa-clock"></i>
+                <span>Next arrival in {{ next_arrival_hours }}h</span>
+            </div>
+        </div>
+        <a href="{{ url_for('admin_schedule') }}" class="card-action">Manage Schedule</a>
+    </div>
+</div>
+
+<div class="content-grid">
+    <div class="recent-activity-card">
+        <div class="card-header">
+            <h3>Recent Activity</h3>
+            <button class="btn btn-text">View All</button>
+        </div>
+        <div class="activity-list">
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <div class="activity-icon {{ activity.type }}">
+                    <i class="{{ activity.icon }}"></i>
+                </div>
+                <div class="activity-details">
+                    <p>{{ activity.description }}</p>
+                    <span class="activity-time">{{ activity.timestamp }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="quick-actions-card">
+        <div class="card-header">
+            <h3>Quick Actions</h3>
+        </div>
+        <div class="quick-actions-grid">
+            <button onclick="location.href='{{ url_for('admin_containers') }}'" class="action-btn">
+                <i class="fas fa-plus"></i>
+                <span>Add Container</span>
+            </button>
+            <button onclick="location.href='{{ url_for('admin_announcements') }}'" class="action-btn">
+                <i class="fas fa-bullhorn"></i>
+                <span>New Announcement</span>
+            </button>
+            <button onclick="location.href='{{ url_for('admin_schedule') }}'" class="action-btn">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Add Arrival</span>
+            </button>
+            <button onclick="location.href='#'" class="action-btn">
+                <i class="fas fa-file-export"></i>
+                <span>Export Report</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
