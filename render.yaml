@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: comoros-tracking
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python init_db.py
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        value: 2166df75b79a7249e7323f2a1ffa7ae8
+      - key: DATABASE_URL
+        value: postgresql://comoros_tracking_user:hcYsAODyEDQX6WqxnZVNaZAGWL3OR5To@dpg-cvjpmrhr0fns738iltvg-a.oregon-postgres.render.com/comoros_tracking
