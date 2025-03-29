@@ -8,29 +8,21 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# Define basedir before using it
+# Database configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
-
-# Enhanced security configurations
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', '2166df75b79a7249e7323f2a1ffa7ae8')
 
-# Get database URL with proper formatting
-database_url = os.environ.get('DATABASE_URL')
-if database_url is None:
-    # Local SQLite fallback
-    database_url = 'sqlite:///' + os.path.join(basedir, 'containers.db')
-elif database_url.startswith('postgres://'):
-    # Fix Render's postgres:// URLs to be postgresql://
+# Get database URL with proper formatting for PostgreSQL
+database_url = os.environ.get('DATABASE_URL', 'postgresql://comoros_tracking_user:hcYsAODyEDQX6WqxnZVNaZAGWL3OR5To@dpg-cvjpmrhr0fns738iltvg-a.oregon-postgres.render.com/comoros_tracking')
+if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 print(f"Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Session lasts 7 days
 
 # Initialize extensions
 db.init_app(app)
