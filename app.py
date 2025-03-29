@@ -128,12 +128,17 @@ def create_container():  # Changed from add_container to create_container
 def track_container(container_number):  # Renamed from get_container to track_container
     container = Container.query.filter_by(container_number=container_number).first()
     if container:
+        eta = None
+        if container.vessel and container.vessel.eta:
+            eta = container.vessel.eta.strftime('%Y-%m-%d %H:%M')
+            
         return jsonify({
             'container_number': container.container_number,
             'current_location': container.vessel.current_port if container.vessel else 'Not Assigned',
             'final_destination': container.final_destination,
             'status': container.status,
             'vessel_name': container.vessel.vessel_name if container.vessel else 'Not Assigned',
+            'eta': eta,  # Added ETA field
             'last_updated': container.last_updated
         })
     return jsonify({"message": "Container not found"}), 404

@@ -378,6 +378,10 @@
                                     <span class="value">${data.vessel_name}</span>
                                 </div>
                                 <div class="detail-item">
+                                    <span class="label">Expected Arrival:</span>
+                                    <span class="value">${data.eta || 'Not Available'}</span>
+                                </div>
+                                <div class="detail-item">
                                     <span class="label">Last Updated:</span>
                                     <span class="value">${new Date(data.last_updated).toLocaleString()}</span>
                                 </div>
@@ -506,6 +510,26 @@
         .status-badge.not-assigned {
             background: #95a5a6;
             color: white;
+        }
+
+        /* Add special styling for Expected Arrival */
+        .detail-item:nth-child(6) {
+            grid-column: 1 / -1;  /* Make it span full width */
+            background: #edf6fd;  /* Light blue background */
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .detail-item:nth-child(6) .label {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .detail-item:nth-child(6) .value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         /* Add smooth scroll behavior to html */
