@@ -9,5 +9,5 @@ services:
     envVars:
       - key: SECRET_KEY
         value: 2166df75b79a7249e7323f2a1ffa7ae8
-      - key: DATABASE_URL
+      - key: DATABASE_URL  # This is the correct key name
         value: postgresql://comoros_tracking_user:hcYsAODyEDQX6WqxnZVNaZAGWL3OR5To@dpg-cvjpmrhr0fns738iltvg-a.oregon-postgres.render.com/comoros_tracking
