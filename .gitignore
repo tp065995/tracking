@@ -25,15 +25,24 @@ instance/
 .webassets-cache
 .env
 
+# Virtual environment
+.env.local
+.env.*.local
+
 # SQLite database
 *.db
 *.sqlite3
 
-# VS Code
+# IDE specific files
 .vscode/
-
-# PyCharm
 .idea/
+*.sublime-workspace
+*.sublime-project
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
 
 # macOS
 .DS_Store
