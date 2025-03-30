@@ -355,6 +355,7 @@
                 if (response.ok) {
                     resultDiv.innerHTML = `
                         <div class="result-content">
+                            ${data.suggested ? `<div class="suggestion-alert">${data.suggested}</div>` : ''}
                             <h2>Container Details</h2>
                             <div class="details-grid">
                                 <div class="detail-item">
@@ -540,6 +541,16 @@
         /* Add some padding to prevent header overlap */
         #result {
             scroll-margin-top: 100px;
+        }
+
+        .suggestion-alert {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffeeba;
+            font-size: 0.95rem;
         }
     </style>
 </body>

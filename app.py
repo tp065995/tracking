@@ -6,6 +6,7 @@ import os
 from models import db, Container, Announcement, Arrival, Admin
 from datetime import datetime, timedelta
 import pandas as pd
+from difflib import SequenceMatcher
 
 app = Flask(__name__)
 
@@ -125,24 +126,50 @@ def create_container():  # Changed from add_container to create_container
     
     return container_schema.jsonify(new_container)
 
+def get_string_similarity(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
+def has_single_digit_difference(str1, str2):
+    if len(str1) != len(str2):
+        return False
+    differences = sum(1 for a, b in zip(str1, str2) if a != b)
+    return differences == 1
+
 @app.route('/container/<container_number>', methods=['GET'])
-def track_container(container_number):  # Renamed from get_container to track_container
+def track_container(container_number):
+    # First try exact match
     container = Container.query.filter_by(container_number=container_number).first()
+    
+    if not container:
+        # If no exact match, look for containers with similar numbers
+        all_containers = Container.query.all()
+        similar_containers = [c for c in all_containers if has_single_digit_difference(c.container_number, container_number)]
+        
+        if len(similar_containers) == 1:
+            # Found one container with single digit difference
+            container = similar_containers[0]
+            message = f"Exact container not found. Showing results for similar container: {container.container_number}"
+        else:
+            return jsonify({"message": "Container not found"}), 404
+    else:
+        message = None
+    
     if container:
         eta = None
         if container.vessel and container.vessel.eta:
             eta = container.vessel.eta.strftime('%Y-%m-%d %H:%M')
             
-        return jsonify({
+        response_data = {
             'container_number': container.container_number,
             'current_location': container.vessel.current_port if container.vessel else 'Not Assigned',
             'final_destination': container.final_destination,
             'status': container.status,
             'vessel_name': container.vessel.vessel_name if container.vessel else 'Not Assigned',
-            'eta': eta,  # Added ETA field
-            'last_updated': container.last_updated
-        })
-    return jsonify({"message": "Container not found"}), 404
+            'eta': eta,
+            'last_updated': container.last_updated,
+            'suggested': message  # Add suggestion message if it exists
+        }
+        return jsonify(response_data)
 
 @app.route('/containers', methods=['GET'])
 def get_all_containers():
