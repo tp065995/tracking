@@ -60,20 +60,9 @@ def day_is(value, other):
 def home():
     from datetime import datetime, timedelta
     # Get announcements
-    priority_announcement = Announcement.query.filter_by(
-        category='priority', 
+    announcements = Announcement.query.filter_by(
         is_active=True
-    ).order_by(Announcement.created_at.desc()).first()
-    
-    maintenance_announcement = Announcement.query.filter_by(
-        category='maintenance', 
-        is_active=True
-    ).order_by(Announcement.created_at.desc()).first()
-    
-    notice_announcement = Announcement.query.filter_by(
-        category='notice', 
-        is_active=True
-    ).order_by(Announcement.created_at.desc()).first()
+    ).order_by(Announcement.created_at.desc()).all()  # Changed this line to get all active announcements
     
     # Get upcoming arrivals for next 7 days
     today = datetime.utcnow()
@@ -92,9 +81,7 @@ def home():
     ).order_by(Arrival.eta).all()
 
     return render_template('index.html',
-                         priority_announcement=priority_announcement,
-                         maintenance_announcement=maintenance_announcement,
-                         notice_announcement=notice_announcement,
+                         announcements=announcements,  # Changed this line
                          mutsamudu_arrivals=mutsamudu_arrivals,
                          moroni_arrivals=moroni_arrivals)
 
