@@ -198,7 +198,9 @@
                     </div>
                 </div>
                 <div class="destination-card">
-                    <img src="{{ url_for('static', filename='images/moroni-port.jpg') }}" alt="Moroni Port">
+                    <img src="{{ url_for('static', filename='images/moroni-port.jpg') }}" 
+                         alt="Moroni Port"
+                         onerror="this.src='{{ url_for('static', filename='images/default-port.jpg') }}'; this.onerror=null;">
                     <div class="destination-info">
                         <h3>Port de Moroni</h3>
                         <p>Port principal de la Grande Comore</p>
