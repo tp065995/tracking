@@ -109,10 +109,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Navire</th>
-                                <th>Origine</th>
+                                <th>Vessel Name</th>
+                                <th>Origin</th>
                                 <th>ETA</th>
-                                <th>Statut</th>
+                                <th>Berth</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,31 +123,20 @@
                                     <div class="vessel-info">
                                         <i class="fas fa-ship"></i>
                                         <div>
-                                            {{ arrival.vessel_name }}
-                                            <span class="voyage">Vol. {{ arrival.voyage_number }}</span>
+                                            <span>{{ arrival.vessel_name }}</span>
+                                            <span class="voyage">VOY: {{ arrival.voyage_number }}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td>{{ arrival.origin_port }}</td>
                                 <td>
-                                    <div class="time">
-                                        <span>{{ arrival.eta.strftime('%d/%m/%Y') }}</span>
-                                        <span>{{ arrival.eta.strftime('%H:%M') }}</span>
+                                    <div class="arrival-time">
+                                        <span class="date">{{ arrival.eta.strftime('%b %d, %Y') }}</span>
+                                        <span class="time">{{ arrival.eta.strftime('%H:%M') }} local time</span>
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="status {{ arrival.status|lower }}">
-                                        {% if arrival.status == 'On Time' %}
-                                            À l'heure
-                                        {% elif arrival.status == 'Delayed' %}
-                                            Retardé
-                                        {% elif arrival.status == 'Arrived' %}
-                                            Arrivé
-                                        {% else %}
-                                            {{ arrival.status }}
-                                        {% endif %}
-                                    </span>
-                                </td>
+                                <td>{{ arrival.berth }}</td>
+                                <td><span class="status {{ arrival.status.lower() }}">{{ arrival.status }}</span></td>
                             </tr>
                             {% endfor %}
                         </tbody>

@@ -181,6 +181,14 @@ def get_schedule(port):
     # Add logic to fetch schedule for specific port
     pass
 
+@app.route('/admin/schedule')
+@login_required
+def admin_schedule():
+    from datetime import datetime
+    today = datetime.utcnow()  # Remove .date() since we'll compare in the template
+    arrivals = Arrival.query.all()
+    return render_template('admin/schedule.html', arrivals=arrivals, today=today)
+
 # Admin Routes
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -260,13 +268,14 @@ def admin_containers():
     vessels = Arrival.query.all()  # Get all vessels for the dropdown
     return render_template('admin/containers.html', containers=containers, vessels=vessels)
 
-@app.route('/admin/schedule')
-@login_required
-def admin_schedule():
-    from datetime import datetime
-    arrivals = Arrival.query.all()
-    today = datetime.utcnow()
-    return render_template('admin/schedule.html', arrivals=arrivals, today=today)
+# Remove or comment out this duplicate route
+# @app.route('/admin/schedule')
+# @login_required
+# def admin_schedule():
+#     from datetime import datetime
+#     arrivals = Arrival.query.all()
+#     today = datetime.utcnow()
+#     return render_template('admin/schedule.html', arrivals=arrivals, today=today)
 
 @app.route('/admin')
 def admin_redirect():
