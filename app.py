@@ -3,7 +3,7 @@ from flask_marshmallow import Marshmallow
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-from models import db, Container, Announcement, Arrival, Admin
+from models import db, Container, Announcement, Arrival, Admin, ContainerHistory
 from datetime import datetime, timedelta
 import pandas as pd
 from difflib import SequenceMatcher
@@ -124,22 +124,46 @@ def has_single_digit_difference(str1, str2):
 
 @app.route('/container/<container_number>', methods=['GET'])
 def track_container(container_number):
-    # First try exact match
+    # First try exact match in active containers
     container = Container.query.filter_by(container_number=container_number).first()
+    message = None
+    is_history = False
     
     if not container:
-        # If no exact match, look for containers with similar numbers
+        # Check in history if not found in active containers
+        history = ContainerHistory.query.filter_by(container_number=container_number).first()
+        if history:
+            return jsonify({
+                'container_number': history.container_number,
+                'final_destination': history.final_destination,
+                'vessel_name': history.vessel_name,
+                'arrival_date': history.arrival_date.strftime('%Y-%m-%d %H:%M'),
+                'is_history': True
+            })
+            
+        # If not found in history, look for similar numbers in active containers
         all_containers = Container.query.all()
         similar_containers = [c for c in all_containers if has_single_digit_difference(c.container_number, container_number)]
         
         if len(similar_containers) == 1:
-            # Found one container with single digit difference
             container = similar_containers[0]
             message = f"Exact container not found. Showing results for similar container: {container.container_number}"
         else:
+            # Finally check history for similar numbers
+            all_history = ContainerHistory.query.all()
+            similar_history = [h for h in all_history if has_single_digit_difference(h.container_number, container_number)]
+            if len(similar_history) == 1:
+                history = similar_history[0]
+                message = f"Exact container not found. Showing results for similar container: {history.container_number}"
+                return jsonify({
+                    'container_number': history.container_number,
+                    'final_destination': history.final_destination,
+                    'vessel_name': history.vessel_name,
+                    'arrival_date': history.arrival_date.strftime('%Y-%m-%d %H:%M'),
+                    'is_history': True,
+                    'suggested': message
+                })
             return jsonify({"message": "Container not found"}), 404
-    else:
-        message = None
     
     if container:
         eta = None
@@ -154,7 +178,8 @@ def track_container(container_number):
             'vessel_name': container.vessel.vessel_name if container.vessel else 'Not Assigned',
             'eta': eta,
             'last_updated': container.last_updated,
-            'suggested': message  # Add suggestion message if it exists
+            'suggested': message,
+            'is_history': False
         }
         return jsonify(response_data)
 
@@ -250,19 +275,42 @@ def admin_announcements():
 @app.route('/admin/containers')
 @login_required
 def admin_containers():
-    # Use SQLAlchemy join to ensure vessel data is loaded
-    containers = Container.query.outerjoin(Arrival, Container.vessel_id == Arrival.id).all()
-    vessels = Arrival.query.all()  # Get all vessels for the dropdown
-    return render_template('admin/containers.html', containers=containers, vessels=vessels)
+    # Get active containers (not arrived)
+    active_containers = Container.query.filter(Container.status != 'Arrived').all()
+    
+    # Get containers history (arrived containers)
+    history_containers = ContainerHistory.query.order_by(ContainerHistory.arrival_date.desc()).all()
+    
+    vessels = Arrival.query.all()
+    
+    return render_template('admin/containers.html', 
+                         containers=active_containers,
+                         history=history_containers,
+                         vessels=vessels)
 
-# Remove or comment out this duplicate route
-# @app.route('/admin/schedule')
-# @login_required
-# def admin_schedule():
-#     from datetime import datetime
-#     arrivals = Arrival.query.all()
-#     today = datetime.utcnow()
-#     return render_template('admin/schedule.html', arrivals=arrivals, today=today)
+@app.route('/admin/containers/<int:id>/complete', methods=['POST'])
+@login_required
+def complete_container(id):
+    try:
+        container = Container.query.get_or_404(id)
+        
+        # Create history record
+        history = ContainerHistory(
+            container_number=container.container_number,
+            final_destination=container.final_destination,
+            vessel_name=container.vessel.vessel_name if container.vessel else None,
+            voyage_number=container.vessel.voyage_number if container.vessel else None
+        )
+        
+        # Add to history and delete from active containers
+        db.session.add(history)
+        db.session.delete(container)
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/admin')
 def admin_redirect():
@@ -522,6 +570,18 @@ def upload_containers():
             'success': False,
             'message': f'Error processing file: {str(e)}'
         }), 500
+
+@app.route('/admin/containers/history/<int:id>', methods=['DELETE'])
+@login_required
+def delete_container_history(id):
+    try:
+        history = ContainerHistory.query.get_or_404(id)
+        db.session.delete(history)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'History record deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.before_request
 def before_request():

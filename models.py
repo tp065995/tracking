@@ -46,6 +46,15 @@ class Container(db.Model):
         else:
             return "En Route"
 
+class ContainerHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    container_number = db.Column(db.String(20), nullable=False)
+    final_destination = db.Column(db.String(100))
+    arrival_date = db.Column(db.DateTime, default=datetime.utcnow)
+    vessel_name = db.Column(db.String(100))
+    voyage_number = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)

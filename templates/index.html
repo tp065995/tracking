@@ -352,35 +352,46 @@
                                     <span class="label">Container Number:</span>
                                     <span class="value">${data.container_number}</span>
                                 </div>
-                                <div class="detail-item">
-                                    <span class="label">Current Location:</span>
-                                    <span class="value">${data.current_location}</span>
-                                </div>
+                                ${!data.is_history ? `
+                                    <div class="detail-item">
+                                        <span class="label">Current Location:</span>
+                                        <span class="value">${data.current_location}</span>
+                                    </div>
+                                ` : ''}
                                 <div class="detail-item">
                                     <span class="label">Final Destination:</span>
                                     <span class="value">${data.final_destination}</span>
                                 </div>
-                                <div class="detail-item">
-                                    <span class="label">Status:</span>
-                                    <span class="value status-badge ${data.status.toLowerCase().replace(' ', '-')}">${data.status}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="label">Vessel:</span>
-                                    <span class="value">${data.vessel_name}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="label">Expected Arrival:</span>
-                                    <span class="value">${data.eta || 'Not Available'}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="label">Last Updated:</span>
-                                    <span class="value">${new Date(data.last_updated).toLocaleString()}</span>
-                                </div>
+                                ${!data.is_history ? `
+                                    <div class="detail-item">
+                                        <span class="label">Status:</span>
+                                        <span class="value status-badge ${data.status.toLowerCase().replace(' ', '-')}">${data.status}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Vessel:</span>
+                                        <span class="value">${data.vessel_name}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Expected Arrival:</span>
+                                        <span class="value">${data.eta || 'Not Available'}</span>
+                                    </div>
+                                ` : `
+                                    <div class="detail-item">
+                                        <span class="label">Vessel:</span>
+                                        <span class="value">${data.vessel_name}</span>
+                                    </div>
+                                    <div class="detail-item arrived-info">
+                                        <div class="arrived-header">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span class="label">Arrived On:</span>
+                                        </div>
+                                        <span class="value">${data.arrival_date}</span>
+                                    </div>
+                                `}
                             </div>
                         </div>
                     `;
                     resultDiv.style.display = 'block';
-                    // Add smooth scroll to result section
                     resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
                     resultDiv.innerHTML = `<p class="error">${data.message}</p>`;
@@ -541,6 +552,40 @@
             border-radius: 8px;
             border-left: 4px solid #ffeeba;
             font-size: 0.95rem;
+        }
+
+        .arrived-info {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #2ecc71;
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+
+        .arrived-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .arrived-header i {
+            color: #2ecc71;
+            font-size: 1.5rem;
+        }
+
+        .arrived-info .label {
+            color: #2ecc71;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .arrived-info .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1b5e20;
+            margin-left: 2rem;
         }
     </style>
 </body>
